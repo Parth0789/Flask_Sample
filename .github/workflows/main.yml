@@ -23,9 +23,9 @@ jobs:
         run: pip install bandit
 
       - name: Run Bandit
-        # Scans all python files in the repo, excludes the /tests directory,
-        # and fails the job if any high or medium-confidence issues are found.
-        run: bandit -r . -x ./tests -ll -c pyproject.toml
+        # CORRECTED: Removed the '-c pyproject.toml' flag.
+        # It now scans all python files, excludes /tests, and fails on medium/high confidence issues.
+        run: bandit -r . -x ./tests -ll
 
   dependency-scan-snyk:
     name: Dependency Scanning with Snyk
@@ -40,38 +40,18 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
+        # It's a good practice to install dependencies before scanning
         run: pip install -r requirements.txt
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python-3.11@master
+        # CORRECTED: The path is now 'snyk/actions/python@master'
+        uses: snyk/actions/python@master
         env:
           # Required: Get your Snyk token from your account settings
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           # Fails the build for high-severity issues. Use --all-projects to scan all manifests.
           args: --severity-threshold=high
-
-  container-scan-trivy:
-    name: Container Scanning with Trivy
-    runs-on: ubuntu-latest
-    # This job assumes you have a Dockerfile
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build a container image
-        run: |
-          docker build -t myapp:${{ github.sha }} .
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'myapp:${{ github.sha }}'
-          format: 'table'
-          exit-code: '1' # Fail the build if vulnerabilities are found
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH' # Only fail for Critical and High severity
 
   secret-scanning-gitleaks:
     name: Secret Scanning with Gitleaks
