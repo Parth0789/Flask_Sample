@@ -59,7 +59,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # We must fetch the entire history for Gitleaks to compare commits.
+          fetch-depth: 0
 
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
-        # Gitleaks will scan the code and fail if it finds hardcoded secrets.
