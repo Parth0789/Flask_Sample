@@ -39,9 +39,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        # It's a good practice to install dependencies before scanning
-        run: pip install -r requirements.txt
+      # - name: Install dependencies
+      #   # It's a good practice to install dependencies before scanning
+      #   run: pip install -r requirements.txt
 
       - name: Run Snyk to check for vulnerabilities
         # CORRECTED: The path is now 'snyk/actions/python@master'
