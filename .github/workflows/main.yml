@@ -1,0 +1,52 @@
+name: Python Security Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  sast-bandit:
+    name: SAST with Bandit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit
+        # Scans all python files in the repo, excludes the /tests directory,
+        # and fails the job if any high or medium-confidence issues are found.
+        run: bandit -r . -x ./tests -ll -c pyproject.toml
+
+  dependency-scan-snyk:
+    name: Dependency Scanning with Snyk
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python-3.11@master
+        env:
+          # Required: Get your Snyk token from your account settings
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          # Fails the build for high-severity issues. Use --all-projects to scan all manifests.
+          args: --severity-threshold=high
