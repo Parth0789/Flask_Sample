@@ -53,6 +53,27 @@ jobs:
           # Fails the build for high-severity issues. Use --all-projects to scan all manifests.
           args: --severity-threshold=high
 
+  container-scan-trivy:
+    name: Container Scanning with Trivy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build a container image
+        run: |
+          docker build -t myapp:${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'myapp:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1' # Fail the build if vulnerabilities are found
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
   secret-scanning-gitleaks:
     name: Secret Scanning with Gitleaks
     runs-on: ubuntu-latest
