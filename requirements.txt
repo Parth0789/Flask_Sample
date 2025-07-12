@@ -24,7 +24,7 @@ pytz==2022.1
 requests==2.32.2
 six==1.16.0
 SQLAlchemy==1.4.39
-urllib3==1.26.19
+urllib3==2.5.0
 virtualenv==20.15.1
 virtualenv-clone==0.5.7
 Werkzeug==3.0.6
